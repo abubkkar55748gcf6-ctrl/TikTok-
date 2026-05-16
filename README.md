@@ -28,12 +28,79 @@ A comprehensive OSINT (Open Source Intelligence) application for analyzing TikTo
 - Axios for HTTP requests
 - CSS3 for styling
 
-## Installation
+## Prerequisites
 
-### Prerequisites
 - Node.js (v14 or higher)
 - MongoDB
 - npm or yarn
+- Git
+
+## Quick Start - Copy & Paste Installation 💯
+
+### All-in-One Setup (Linux/macOS)
+
+```bash
+# Clone the repository
+git clone https://github.com/abubkkar55748gcf6-ctrl/TikTok-.git
+cd TikTok-
+
+# Create backend environment file
+cat > backend/.env << 'EOF'
+MONGODB_URI=mongodb://localhost:27017/tiktok-osint
+JWT_SECRET=your_jwt_secret_key_here_change_in_production
+PORT=5000
+NODE_ENV=development
+CLIENT_URL=http://localhost:3000
+EOF
+
+# Install and run backend
+cd backend
+npm install
+npm run dev &
+cd ..
+
+# Install and run frontend
+cd frontend
+npm install
+npm start &
+cd ..
+
+echo "✅ Backend running on http://localhost:5000"
+echo "✅ Frontend running on http://localhost:3000"
+echo "✅ Open http://localhost:3000 in your browser"
+```
+
+### All-in-One Setup (Windows PowerShell)
+
+```powershell
+# Clone the repository
+git clone https://github.com/abubkkar55748gcf6-ctrl/TikTok-.git
+cd TikTok-
+
+# Create backend environment file
+$envContent = @"
+MONGODB_URI=mongodb://localhost:27017/tiktok-osint
+JWT_SECRET=your_jwt_secret_key_here_change_in_production
+PORT=5000
+NODE_ENV=development
+CLIENT_URL=http://localhost:3000
+"@
+$envContent | Out-File -FilePath backend\.env -Encoding UTF8
+
+# Install and run backend
+cd backend
+npm install
+npm run dev
+
+# In another PowerShell window, run frontend
+cd frontend
+npm install
+npm start
+
+# Frontend will open at http://localhost:3000
+```
+
+## Installation (Step-by-Step)
 
 ### Backend Setup
 
@@ -107,11 +174,11 @@ CLIENT_URL=http://localhost:3000
 
 ## Usage
 
-1. Start MongoDB
-2. Run backend server: `npm run dev` (from backend directory)
-3. Run frontend: `npm start` (from frontend directory)
-4. Open http://localhost:3000 in your browser
-5. Register a new account or login
+1. Start MongoDB (ensure it's running)
+2. Run the all-in-one setup command above
+3. Open http://localhost:3000 in your browser
+4. Register a new account or login
+5. Start using the app!
 
 ## Security
 
@@ -119,6 +186,21 @@ CLIENT_URL=http://localhost:3000
 - JWT tokens expire after 7 days
 - Protected routes require valid authentication
 - CORS enabled for frontend-backend communication
+- Always change JWT_SECRET in production
+
+## Troubleshooting
+
+### MongoDB Connection Error
+- Ensure MongoDB is running: `mongod`
+- Check MONGODB_URI in `.env` file
+
+### Port Already in Use
+- Backend: Change PORT in `.env`
+- Frontend: Set PORT=3001 in terminal: `PORT=3001 npm start`
+
+### Node Modules Issues
+- Delete node_modules and package-lock.json
+- Run `npm install` again
 
 ## Future Features
 
