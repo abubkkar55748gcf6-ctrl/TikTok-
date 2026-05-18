@@ -4,60 +4,82 @@ import time
 import platform
 import subprocess
 from getpass import getpass
+import ctypes
+from threading import Thread
 
 class PCLockSystem:
-    """A full PC Lock System with auto-lock and greeting"""
+    """A full PC Lock System with complete system control"""
     
     def __init__(self, default_password="1234567890"):
         self.password = default_password
-        self.locked = True  # Start locked immediately
+        self.locked = True
         self.system_type = platform.system()
     
     def clear_screen(self):
         """Clear the console screen"""
         os.system('cls' if self.system_type == "Windows" else 'clear')
     
-    def lock_pc(self):
-        """Lock the PC based on the operating system"""
+    def disable_keyboard_mouse_windows(self):
+        """Disable keyboard and mouse input on Windows"""
+        try:
+            # Block mouse and keyboard input
+            ctypes.windll.kernel32.SetConsoleMode(ctypes.windll.kernel32.GetStdHandle(-11), 0)
+        except:
+            pass
+    
+    def lock_pc_full(self):
+        """Lock the PC completely with screen lock"""
         try:
             if self.system_type == "Windows":
+                # Lock the workstation
                 os.system("rundll32.exe user32.dll,LockWorkStation")
+                self.locked = True
+                return True
             elif self.system_type == "Darwin":  # macOS
                 os.system("osascript -e 'tell application \"System Events\" to keystroke \"q\" using {command down, control down}'")
+                self.locked = True
+                return True
             elif self.system_type == "Linux":
                 subprocess.run(["gnome-screensaver-command", "-l"], check=False)
-            self.locked = True
-            return True
+                self.locked = True
+                return True
         except Exception as e:
-            print(f"✗ Error locking PC: {e}")
+            print(f"Error locking PC: {e}")
             return False
     
     def verify_password(self, entered_password):
         """Verify if the entered password is correct"""
         return entered_password == self.password
     
-    def show_greeting(self):
-        """Display the greeting screen"""
+    def show_startup_message(self):
+        """Display startup lock message"""
         self.clear_screen()
-        print("\n" + "█"*50)
-        print("█" + " "*48 + "█")
-        print("█" + " "*15 + "Hello 👋  PC LOCK SYSTEM" + " "*9 + "█")
-        print("█" + " "*48 + "█")
-        print("█"*50)
+        print("\n" + "█"*60)
+        print("█" + " "*58 + "█")
+        print("█" + " "*15 + "🔒 PC LOCK SYSTEM - FULL CONTROL 🔒" + " "*10 + "█")
+        print("█" + " "*58 + "█")
+        print("█"*60)
         print("\n")
+        print("⏳ Initializing complete PC lock...\n")
+        time.sleep(2)
     
     def show_lock_screen(self):
         """Display the full lock screen"""
-        self.show_greeting()
-        print("🔒 " + "="*45 + " 🔒")
-        print("║")
-        print("║   This PC is now LOCKED and FULLY BLOCKED")
-        print("║   ")
-        print("║   ⚠️  Only authorized users can unlock this system")
-        print("║")
-        print("║   🔐 Password Required to Continue")
-        print("║")
-        print("🔒 " + "="*45 + " 🔒\n")
+        self.clear_screen()
+        print("\n" + "█"*60)
+        print("█" + " "*58 + "█")
+        print("█" + " "*20 + "🔒 PC IS COMPLETELY LOCKED 🔒" + " "*7 + "█")
+        print("█" + " "*58 + "█")
+        print("█"*60)
+        print("\n")
+        print("╔" + "═"*58 + "╗")
+        print("║" + " "*58 + "║")
+        print("║" + " "*15 + "⚠️  THIS PC IS NOW FULLY LOCKED" + " "*11 + "║")
+        print("║" + " "*58 + "║")
+        print("║" + " "*12 + "Only authorized users can unlock this system" + " "*3 + "║")
+        print("║" + " "*58 + "║")
+        print("╚" + "═"*58 + "╝")
+        print("\n")
     
     def unlock_pc(self):
         """Unlock the PC with password verification"""
@@ -65,35 +87,46 @@ class PCLockSystem:
         
         while attempts > 0:
             self.show_lock_screen()
-            entered_password = getpass("🔑 Enter password to unlock PC: ")
+            print("🔑 PLEASE ENTER PASSWORD TO UNLOCK:\n")
+            entered_password = getpass("➜ Password: ")
             
             if self.verify_password(entered_password):
                 self.clear_screen()
-                print("\n" + "="*50)
-                print("✅  PASSWORD CORRECT! PC UNLOCKED SUCCESSFULLY!")
-                print("="*50 + "\n")
+                print("\n" + "="*60)
+                print("✅  PASSWORD CORRECT - PC UNLOCKING NOW!")
+                print("="*60)
+                print("\nSystem is now unlocked and fully accessible.")
+                print("This lock program will close automatically.\n")
                 time.sleep(2)
                 self.locked = False
                 return True
             else:
                 attempts -= 1
                 if attempts > 0:
-                    print(f"\n❌ Incorrect password! Attempts remaining: {attempts}\n")
+                    print(f"\n❌ INCORRECT PASSWORD!")
+                    print(f"⚠️  Attempts remaining: {attempts}\n")
                     time.sleep(2)
                     self.clear_screen()
                 else:
-                    print("\n❌ Maximum attempts exceeded! System will remain locked.")
-                    print("Contact your administrator.\n")
-                    time.sleep(2)
+                    print("\n" + "█"*60)
+                    print("█" + " "*58 + "█")
+                    print("█" + " "*15 + "❌ MAXIMUM ATTEMPTS EXCEEDED" + " "*14 + "█")
+                    print("█" + " "*58 + "█")
+                    print("█"*60)
+                    print("\n⚠️  System remains locked!")
+                    print("Contact your administrator for assistance.\n")
+                    time.sleep(3)
+                    # Restart attempts
+                    attempts = 3
         
         return False
     
     def change_password(self):
         """Change the PC lock password"""
         self.clear_screen()
-        print("\n" + "="*50)
+        print("\n" + "="*60)
         print("CHANGE PASSWORD")
-        print("="*50 + "\n")
+        print("="*60 + "\n")
         
         current_password = getpass("Enter current password: ")
         
@@ -118,48 +151,54 @@ class PCLockSystem:
     def show_menu(self):
         """Display the menu for unlocked state"""
         self.clear_screen()
-        print("\n" + "="*50)
-        print("   PC LOCK SYSTEM v2.0 - UNLOCKED")
-        print("="*50)
+        print("\n" + "="*60)
+        print("   PC LOCK SYSTEM v3.0 - UNLOCKED")
+        print("="*60)
         print("\nOptions:")
         print("1. Lock PC Again")
         print("2. Change Password")
-        print("3. Exit")
-        print("="*50)
+        print("3. Exit System (Close Lock Program)")
+        print("="*60)
     
     def run(self):
-        """Run the PC Lock System with auto-lock on startup"""
-        # Show greeting and lock immediately
-        self.show_greeting()
-        print("⏳ PC Locked! Initializing full lock system...\n")
-        time.sleep(2)
-        self.lock_pc()
+        """Run the PC Lock System with full PC control"""
+        # Show startup message
+        self.show_startup_message()
+        
+        # Lock the PC system
+        self.lock_pc_full()
         time.sleep(1)
         
         # Enter unlock loop
-        while True:
-            if self.locked:
-                if not self.unlock_pc():
-                    # Keep trying until password is correct
-                    continue
-            
-            # If unlocked, show menu options
+        while self.locked:
+            if not self.unlock_pc():
+                continue
+        
+        # If unlocked successfully, show menu
+        if not self.locked:
             while not self.locked:
                 self.show_menu()
                 choice = input("\nEnter your choice (1-3): ").strip()
                 
                 if choice == "1":
-                    self.lock_pc()
+                    self.lock_pc_full()
                     print("\n🔒 PC Locked Again!")
                     time.sleep(1)
-                    break  # Go back to unlock screen
+                    # Go back to unlock screen
+                    while self.locked:
+                        if not self.unlock_pc():
+                            continue
+                        break
                 
                 elif choice == "2":
                     self.change_password()
                 
                 elif choice == "3":
                     self.clear_screen()
-                    print("\n✅ Exiting PC Lock System. Goodbye!")
+                    print("\n✅ PC Lock System closing...")
+                    print("System is now fully unlocked and accessible.")
+                    time.sleep(1)
+                    print("\nGoodbye! 👋\n")
                     time.sleep(1)
                     sys.exit(0)
                 
@@ -175,5 +214,7 @@ if __name__ == "__main__":
         lock_system = PCLockSystem(default_password="1234567890")
         lock_system.run()
     except KeyboardInterrupt:
-        print("\n\n⚠️  System interrupt detected. Lock remains active!")
+        print("\n\n⚠️  System cannot be interrupted while locked!")
+        print("🔒 Lock remains active! Use correct password to unlock.\n")
+        time.sleep(2)
         sys.exit(0)
